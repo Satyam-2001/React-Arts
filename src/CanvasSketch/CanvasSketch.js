@@ -45,7 +45,7 @@ const CanvasSketch = (props) => {
                 context.fillRect(0, 0, canvas.width, canvas.height)
             })
         }
-    }, [props.getClearCanvas])
+    }, [])
 
     const postionCanvas = (e) => {
         const { left, top } = canvasRef.current.getBoundingClientRect();

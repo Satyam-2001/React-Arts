@@ -4,9 +4,12 @@
 
 This library contains two react component `CanvasSketch` and `CanvasSketchTool`
 
-<p align="center">
+<a href="https://satyam-2001.github.io/React-Arts/" target="_blank">
+<div align="center">
+<p align="center" style="color:red;text-decoration:none; font-weight:500; letter-spacing:2px; font-size:large;" >LIVE DEMO</p>
 <img width="641" alt="react_arts" src="https://user-images.githubusercontent.com/88069082/172010401-36293ebb-f376-4ac5-be17-39996828542e.PNG">
-</p>
+</div>
+</a>
 
 
 # Installation
@@ -19,7 +22,7 @@ npm install react-arts
 
 # CanvasSketch 
 
-`CanvasSketch component` appends simple canvas where a user can sketch using mouse or touch behaviour on screen.
+`CanvasSketch` component appends simple canvas where a user can sketch using mouse or touch behaviour on screen.
 
 ```javascript
 import './App.css';
@@ -60,7 +63,7 @@ export default App;
 
 # CanvasSketchTool
 
-`CanvasSketchTool component` is advance version of CanvasSketch which also comes with a tool kit to change and use properties like `color`, `erase`, `line width`, `clear canvas`, `floodfill`.
+`CanvasSketchTool` component is advance version of CanvasSketch which also comes with a tool kit to change and use properties like `color`, `erase`, `line width`, `clear canvas`, `floodfill`.
 
 ```javascript
 import './App.css';
