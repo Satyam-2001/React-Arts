@@ -1,0 +1,14 @@
+.menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    box-sizing: border-box;
+    padding: 5px;
+    height: 95%;
+    width: 50px;
+    margin: 0px 8px;
+    border-radius: 25px;
+    border: 1px solid #dadce0;
+    background-color: white;
+    z-index: 10;
+}

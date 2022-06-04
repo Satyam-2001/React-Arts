@@ -1,0 +1,10 @@
+.circle {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    margin: 5px;
+    box-sizing: border-box;
+}
+
+.border {
+    border: 4px solid rgb(108, 208, 245)
+}
