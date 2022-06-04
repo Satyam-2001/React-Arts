@@ -1,6 +1,6 @@
 {
   "name": "react-arts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "React functional component to embade canvas sketch art.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
