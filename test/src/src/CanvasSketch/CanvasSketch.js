@@ -18,12 +18,10 @@ const CanvasSketch = (props) => {
         canvas.style.height = `${canvas.height}`;
 
         const context = canvas.getContext("2d");
-        context.lineCap = props.lineCap;
-        context.strokeStyle = props.color;
-        context.lineWidth = props.lineWidth;
+        context.lineCap = props.lineCap || 'round';
+        context.strokeStyle = props.color || 'black';
+        context.lineWidth = props.lineWidth || 4;
         contextRef.current = context;
-        console.log(canvas.getBoundingClientRect());
-        
     }, [])
 
     useEffect(() => {
@@ -39,17 +37,27 @@ const CanvasSketch = (props) => {
     }, [props.lineWidth])
 
     useEffect(() => {
-        props.getClearCanvas(() => () => {
-            const canvas = canvasRef.current;
-            const context = canvas.getContext("2d")
-            context.fillStyle = "white"
-            context.fillRect(0, 0, canvas.width, canvas.height)
-        })
-    }, [])
+        if (props.getClearCanvas) {
+            props.getClearCanvas(() => () => {
+                const canvas = canvasRef.current;
+                const context = canvas.getContext("2d")
+                context.fillStyle = "white"
+                context.fillRect(0, 0, canvas.width, canvas.height)
+            })
+        }
+    }, [props.getClearCanvas])
 
-    const startDrawing = ({ nativeEvent }) => {
+    const postionCanvas = (e) => {
+        const { left, top } = canvasRef.current.getBoundingClientRect();
+        return [
+            parseInt((e.pageX || e.touches[0].pageX) - left),
+            parseInt((e.pageY || e.touches[0].pageY) - top)
+        ];
+    }
 
-        const { offsetX, offsetY } = nativeEvent;
+    const startDrawing = (e) => {
+
+        const position = postionCanvas(e);
 
         if (props.option === 'paint') {
             const canvas = canvasRef.current
@@ -61,25 +69,16 @@ const CanvasSketch = (props) => {
                 b: parseInt(rgb[2]),
                 a: 255
             }
-            floodFill(imageData, newcolor, offsetX, offsetY)
+            floodFill(imageData, newcolor, ...position)
             contextRef.current.putImageData(imageData, 0, 0)
         }
 
         else {
             contextRef.current.beginPath();
-            contextRef.current.moveTo(offsetX, offsetY);
+            contextRef.current.moveTo(...position);
             setIsDrawing(true);
         }
 
-    };
-
-    const startTouchDrawing = ({ touches }) => {
-
-        const { pageX, pageY } = touches[0];
-        const {left , top}  = canvasRef.current.getBoundingClientRect()
-        contextRef.current.beginPath();
-        contextRef.current.moveTo(pageX - left, pageY -top);
-        setIsDrawing(true);
     };
 
     const finishDrawing = () => {
@@ -87,27 +86,13 @@ const CanvasSketch = (props) => {
         setIsDrawing(false);
     };
 
-    const draw = ({ nativeEvent }) => {
+    const draw = (e) => {
 
-        if (!isDrawing) {
-            return;
-        }
-        const { offsetX, offsetY } = nativeEvent;
-        contextRef.current.lineTo(offsetX, offsetY);
+        if (!isDrawing) return;
+        const position = postionCanvas(e);
+        contextRef.current.lineTo(...position);
         contextRef.current.stroke();
     };
-
-    const touchDraw = ({ touches }) => {
-
-        if (!isDrawing) {
-            return;
-        }
-        const {left , top}  = canvasRef.current.getBoundingClientRect()
-        const { pageX, pageY } = touches[0];
-
-        contextRef.current.lineTo(pageX - left, pageY - top);
-        contextRef.current.stroke();
-    }
 
     return (
         <div className={classes.main} style={{ height: `${props.height}px`, width: `${props.width}px` }} >
@@ -115,12 +100,12 @@ const CanvasSketch = (props) => {
                 ref={canvasRef}
                 className={classes.canvas}
                 onMouseDown={startDrawing}
-                onMouseUp={finishDrawing}
                 onMouseMove={draw}
-                onTouchStart={startTouchDrawing}
-                onTouchEnd={finishDrawing}
-                onTouchMove={touchDraw}
+                onMouseUp={finishDrawing}
                 onMouseLeave={finishDrawing}
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={finishDrawing}
             >
             </canvas>
         </div>

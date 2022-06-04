@@ -1,7 +1,7 @@
 import React, { useReducer, useState } from 'react'
 import CanvasSketch from '../CanvasSketch/CanvasSketch'
 import classes from './CanvasSketchTool.module.css'
-import Menu from '../CanvasSketchTool/Menu/Menu'
+import Menu from './Menu/Menu'
 
 const initialData = {
     color: 'rgb(60,64,67)',
@@ -17,9 +17,6 @@ const CanvasSketchTool = (props) => {
 
     const [properties, dispatchData] = useReducer(reducer, initialData);
     const [clearCanvas, setClearCanvas] = useState()
-
-    console.log(properties);
-    
 
     return (
         <div className={classes.box} style={{ height: `${props.height}px` }}>

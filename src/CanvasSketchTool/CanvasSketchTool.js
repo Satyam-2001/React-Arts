@@ -18,9 +18,6 @@ const CanvasSketchTool = (props) => {
     const [properties, dispatchData] = useReducer(reducer, initialData);
     const [clearCanvas, setClearCanvas] = useState()
 
-    console.log(properties);
-    
-
     return (
         <div className={classes.box} style={{ height: `${props.height}px` }}>
             <Menu dispatchData = {dispatchData} clearCanvas = {clearCanvas} />

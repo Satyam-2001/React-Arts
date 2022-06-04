@@ -1,5 +1,5 @@
 import './App.css';
-import { CanvasSketchTool } from './index1';
+import CanvasSketchTool from './src/CanvasSketchTool/CanvasSketchTool';
 
 function App() {
   return (

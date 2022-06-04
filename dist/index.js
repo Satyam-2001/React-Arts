@@ -38,9 +38,9 @@ function styleInject(css, ref) {
   }
 }
 
-var css_248z$6 = ".CanvasSketch-module_main__z3D8e{position:relative}.CanvasSketch-module_canvas__9YPTy{background-color:#fff;border:solid;border-color:rgba(0,0,0,.1);border-width:2px;cursor:pointer}";
-var classes$6 = {"main":"CanvasSketch-module_main__z3D8e","canvas":"CanvasSketch-module_canvas__9YPTy"};
-styleInject(css_248z$6);
+var css_248z$5 = ".CanvasSketch-module_main__z3D8e{position:relative}.CanvasSketch-module_canvas__9YPTy{background-color:#fff;border:solid;border-color:rgba(0,0,0,.1);border-width:2px;cursor:pointer}";
+var classes$5 = {"main":"CanvasSketch-module_main__z3D8e","canvas":"CanvasSketch-module_canvas__9YPTy"};
+styleInject(css_248z$5);
 
 const getColorAtPixel = (imageData, x, y) => {
   const {
@@ -152,9 +152,9 @@ const CanvasSketch = props => {
     canvas.style.width = `${canvas.width}`;
     canvas.style.height = `${canvas.height}`;
     const context = canvas.getContext("2d");
-    context.lineCap = props.lineCap;
-    context.strokeStyle = props.color;
-    context.lineWidth = props.lineWidth;
+    context.lineCap = props.lineCap || 'round';
+    context.strokeStyle = props.color || 'black';
+    context.lineWidth = props.lineWidth || 4;
     contextRef.current = context;
   }, []);
   React.useEffect(() => {
@@ -167,21 +167,26 @@ const CanvasSketch = props => {
     contextRef.current.lineWidth = props.lineWidth;
   }, [props.lineWidth]);
   React.useEffect(() => {
-    props.getClearCanvas(() => () => {
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d");
-      context.fillStyle = "white";
-      context.fillRect(0, 0, canvas.width, canvas.height);
-    });
-  }, []);
+    if (props.getClearCanvas) {
+      props.getClearCanvas(() => () => {
+        const canvas = canvasRef.current;
+        const context = canvas.getContext("2d");
+        context.fillStyle = "white";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+      });
+    }
+  }, [props.getClearCanvas]);
 
-  const startDrawing = ({
-    nativeEvent
-  }) => {
+  const postionCanvas = e => {
     const {
-      offsetX,
-      offsetY
-    } = nativeEvent;
+      left,
+      top
+    } = canvasRef.current.getBoundingClientRect();
+    return [parseInt((e.pageX || e.touches[0].pageX) - left), parseInt((e.pageY || e.touches[0].pageY) - top)];
+  };
+
+  const startDrawing = e => {
+    const position = postionCanvas(e);
 
     if (props.option === 'paint') {
       const canvas = canvasRef.current;
@@ -193,25 +198,13 @@ const CanvasSketch = props => {
         b: parseInt(rgb[2]),
         a: 255
       };
-      floodFill(imageData, newcolor, offsetX, offsetY);
+      floodFill(imageData, newcolor, ...position);
       contextRef.current.putImageData(imageData, 0, 0);
     } else {
       contextRef.current.beginPath();
-      contextRef.current.moveTo(offsetX, offsetY);
+      contextRef.current.moveTo(...position);
       setIsDrawing(true);
     }
-  };
-
-  const startTouchDrawing = ({
-    touches
-  }) => {
-    const {
-      clientX,
-      clientY
-    } = touches[0];
-    contextRef.current.beginPath();
-    contextRef.current.moveTo(clientX - window.innerWidth * 0.22, clientY - window.innerHeight * 0.1);
-    setIsDrawing(true);
   };
 
   const finishDrawing = () => {
@@ -219,52 +212,29 @@ const CanvasSketch = props => {
     setIsDrawing(false);
   };
 
-  const draw = ({
-    nativeEvent
-  }) => {
-    if (!isDrawing) {
-      return;
-    }
-
-    const {
-      offsetX,
-      offsetY
-    } = nativeEvent;
-    contextRef.current.lineTo(offsetX, offsetY);
-    contextRef.current.stroke();
-  };
-
-  const touchDraw = ({
-    touches
-  }) => {
-    if (!isDrawing) {
-      return;
-    }
-
-    const {
-      clientX,
-      clientY
-    } = touches[0];
-    contextRef.current.lineTo(clientX - window.innerWidth * 0.22, clientY - window.innerHeight * 0.1);
+  const draw = e => {
+    if (!isDrawing) return;
+    const position = postionCanvas(e);
+    contextRef.current.lineTo(...position);
     contextRef.current.stroke();
   };
 
   return /*#__PURE__*/React__default["default"].createElement("div", {
-    className: classes$6.main,
+    className: classes$5.main,
     style: {
       height: `${props.height}px`,
       width: `${props.width}px`
     }
   }, /*#__PURE__*/React__default["default"].createElement("canvas", {
     ref: canvasRef,
-    className: classes$6.canvas,
+    className: classes$5.canvas,
     onMouseDown: startDrawing,
-    onMouseUp: finishDrawing,
     onMouseMove: draw,
-    onTouchStart: startTouchDrawing,
-    onTouchEnd: finishDrawing,
-    onTouchMove: touchDraw,
-    onMouseLeave: finishDrawing
+    onMouseUp: finishDrawing,
+    onMouseLeave: finishDrawing,
+    onTouchStart: startDrawing,
+    onTouchMove: draw,
+    onTouchEnd: finishDrawing
   }));
 };
 
@@ -285,17 +255,17 @@ function _extends() {
   return _extends.apply(this, arguments);
 }
 
-var css_248z$5 = ".CanvasSketchTool-module_box__gZsxo{align-items:center;box-sizing:border-box;display:flex;flex-direction:row;justify-content:center}";
-var classes$5 = {"box":"CanvasSketchTool-module_box__gZsxo"};
-styleInject(css_248z$5);
-
-var css_248z$4 = ".Menu-module_menu__4Ey1d{background-color:#fff;border:1px solid #dadce0;border-radius:25px;box-sizing:border-box;display:flex;flex-direction:column;height:95%;justify-content:space-around;margin:0 8px;padding:5px;width:50px;z-index:10}";
-var classes$4 = {"menu":"Menu-module_menu__4Ey1d"};
+var css_248z$4 = ".CanvasSketchTool-module_box__gZsxo{align-items:center;box-sizing:border-box;display:flex;flex-direction:row;justify-content:center}";
+var classes$4 = {"box":"CanvasSketchTool-module_box__gZsxo"};
 styleInject(css_248z$4);
 
-var css_248z$3 = "@import url(\"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200\");.IconButton-module_menu-option__DK-ZQ{align-items:center;aspect-ratio:1/1;border-radius:50%;cursor:pointer;display:flex;flex-direction:row;justify-content:center;position:relative}.IconButton-module_name__RL4s0{background-color:#3c4043;border-radius:5px;color:#fff;font-size:13px;font-weight:500;left:50px;padding:3px 5px;position:absolute;white-space:nowrap}";
-var classes$3 = {"menu-option":"IconButton-module_menu-option__DK-ZQ","name":"IconButton-module_name__RL4s0"};
+var css_248z$3 = ".Menu-module_menu__4Ey1d{background-color:#fff;border:1px solid #dadce0;border-radius:25px;box-sizing:border-box;display:flex;flex-direction:column;height:95%;justify-content:space-around;margin:0 8px;padding:5px;width:50px;z-index:10}";
+var classes$3 = {"menu":"Menu-module_menu__4Ey1d"};
 styleInject(css_248z$3);
+
+var css_248z$2 = ".IconButton-module_menu-option__DK-ZQ{align-items:center;aspect-ratio:1/1;border-radius:50%;cursor:pointer;display:flex;flex-direction:row;justify-content:center;position:relative}.IconButton-module_name__RL4s0{background-color:#3c4043;border-radius:5px;color:#fff;font-size:13px;font-weight:500;left:50px;padding:3px 5px;position:absolute;white-space:nowrap}";
+var classes$2 = {"menu-option":"IconButton-module_menu-option__DK-ZQ","name":"IconButton-module_name__RL4s0"};
+styleInject(css_248z$2);
 
 const IconButton = props => {
   const [show, setShow] = React.useState(false);
@@ -306,7 +276,7 @@ const IconButton = props => {
   };
 
   return /*#__PURE__*/React__default["default"].createElement("div", {
-    className: classes$3['menu-option'],
+    className: classes$2['menu-option'],
     style: {
       backgroundColor: !isActive ? 'white' : props.color || 'rgb(60,64,67)'
     }
@@ -318,13 +288,13 @@ const IconButton = props => {
     onMouseLeave: () => setShow(false),
     onClick: props.onClick || onClickHandler
   }), show ? /*#__PURE__*/React__default["default"].createElement("p", {
-    className: classes$3.name
+    className: classes$2.name
   }, props.name) : undefined, props.children);
 };
 
-var css_248z$2 = ".Circle-module_circle__2zVZA{aspect-ratio:1/1;border-radius:50%;box-sizing:border-box;margin:5px}.Circle-module_border__8aHMq{border:4px solid #6cd0f5}";
-var classes$2 = {"circle":"Circle-module_circle__2zVZA","border":"Circle-module_border__8aHMq"};
-styleInject(css_248z$2);
+var css_248z$1 = ".Circle-module_circle__2zVZA{aspect-ratio:1/1;border-radius:50%;box-sizing:border-box;margin:5px}.Circle-module_border__8aHMq{border:4px solid #6cd0f5}";
+var classes$1 = {"circle":"Circle-module_circle__2zVZA","border":"Circle-module_border__8aHMq"};
+styleInject(css_248z$1);
 
 const Circle = props => {
   const onClick = () => {
@@ -332,7 +302,7 @@ const Circle = props => {
   };
 
   return /*#__PURE__*/React__default["default"].createElement("p", {
-    className: `${classes$2.circle} ${props.selected ? classes$2.border : undefined}`,
+    className: `${classes$1.circle} ${props.selected ? classes$1.border : undefined}`,
     onClick: onClick,
     style: {
       width: `${props.size}px`,
@@ -342,9 +312,9 @@ const Circle = props => {
   });
 };
 
-var css_248z$1 = ".Size-module_size-menu__5Xffn{align-items:center;background-color:#fff;border-radius:5px;box-shadow:2px 2px 6px rgba(0,0,0,.5);display:flex;flex-direction:row;justify-content:space-around;left:50px;min-height:40px;position:absolute;width:100px;z-index:20}";
-var classes$1 = {"size-menu":"Size-module_size-menu__5Xffn"};
-styleInject(css_248z$1);
+var css_248z = ".Common-module_size-menu__FEDzj{align-items:center;background-color:#fff;border-radius:5px;box-shadow:2px 2px 6px rgba(0,0,0,.5);display:flex;flex-flow:row;justify-content:space-around;left:50px;position:absolute;width:130px;z-index:20}";
+var classes = {"size-menu":"Common-module_size-menu__FEDzj"};
+styleInject(css_248z);
 
 const useOutsideClick = (ref, callback) => {
   React.useEffect(() => {
@@ -391,8 +361,8 @@ const Size = props => {
     onClick: onClick
   }), show ? /*#__PURE__*/React__default["default"].createElement("div", {
     ref: ref,
-    className: classes$1['size-menu']
-  }, [4, 6, 8, 10].map(size => /*#__PURE__*/React__default["default"].createElement(Circle, {
+    className: classes['size-menu']
+  }, [4, 6, 8, 10, 15].map(size => /*#__PURE__*/React__default["default"].createElement(Circle, {
     key: size,
     size: size,
     property: size,
@@ -401,10 +371,6 @@ const Size = props => {
     selected: lineWidth === size
   }))) : undefined);
 };
-
-var css_248z = ".Color-module_size-menu__LqWM8{align-items:center;background-color:#fff;border-radius:5px;box-shadow:2px 2px 6px rgba(0,0,0,.5);display:flex;flex-flow:row wrap;justify-content:space-around;left:50px;position:absolute;width:130px;z-index:20}";
-var classes = {"size-menu":"Color-module_size-menu__LqWM8"};
-styleInject(css_248z);
 
 const colors = ['rgb(60,64,67)', 'rgb(25,172,192)', 'rgb(105,158,62)', 'rgb(243,179,42)', 'rgb(217,69,62)', 'rgb(171,71,188)'];
 
@@ -424,8 +390,11 @@ const Color = props => {
   }, props, {
     onClick: onClick
   }), show ? /*#__PURE__*/React__default["default"].createElement("div", {
+    ref: ref,
     className: classes['size-menu'],
-    ref: ref
+    style: {
+      flexWrap: 'wrap'
+    }
   }, colors.map(color => /*#__PURE__*/React__default["default"].createElement(Circle, {
     key: color,
     size: 30,
@@ -474,7 +443,7 @@ const Menu = props => {
     setActive: onChange
   };
   return /*#__PURE__*/React__default["default"].createElement("div", {
-    className: classes$4.menu
+    className: classes$3.menu
   }, /*#__PURE__*/React__default["default"].createElement(IconButton, _extends({
     name: "Pen",
     label: js.mdiPen
@@ -515,9 +484,8 @@ const reducer = (prev, action) => {
 const CanvasSketchTool = props => {
   const [properties, dispatchData] = React.useReducer(reducer, initialData);
   const [clearCanvas, setClearCanvas] = React.useState();
-  console.log(properties);
   return /*#__PURE__*/React__default["default"].createElement("div", {
-    className: classes$5.box,
+    className: classes$4.box,
     style: {
       height: `${props.height}px`
     }

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import IconButton from './Icon/IconButton';
 import Circle from './Circle';
-import classes from './Size.module.css'
+import classes from './Common.module.css'
 import useOutsideClick from './Hooks/useOutsideClick';
 import { mdiAdjust } from '@mdi/js';
 
@@ -35,7 +35,7 @@ const Size = (props) => {
                     className={classes['size-menu']}
                 >
                     {
-                        [4, 6, 8, 10].map(
+                        [4, 6, 8, 10, 15].map(
                             size => <Circle
                                 key={size}
                                 size={size}
